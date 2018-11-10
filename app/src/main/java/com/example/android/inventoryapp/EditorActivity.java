@@ -508,7 +508,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             Toast.makeText (this, getResources ().getString (R.string.phone_required), Toast.LENGTH_SHORT).show ();
             return false;
         }
-
         return true;
     }
 
