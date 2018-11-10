@@ -3,7 +3,6 @@ package com.example.android.inventoryapp.data;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
@@ -74,6 +73,7 @@ public class ItemCursorAdapter extends CursorAdapter {
         priceTextView.setText(String.valueOf(itemPrice));
         quantityTextView.setText(String.valueOf(quantity));
         supplierTextView.setText(supplier);
+        phoneTextView.setText(String.valueOf(phone));
 
         final Button sold = view.findViewById(R.id.sale_button);
 
