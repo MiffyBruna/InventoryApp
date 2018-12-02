@@ -33,27 +33,23 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     private static final int EXISTING_ITEM_LOADER = 0;
     int counter;
+    int quantity;
     private Uri mCurrentItemUri;
     private EditText mNameEditText;
     private EditText mPriceEditText;
     private EditText mQuantityEditText;
     private EditText mSupplierEditText;
     private EditText mPhoneEditText;
-
     private Spinner mAvailabilitySpinner;
-
     private Button increase;
     private Button decrease;
     private Button delete;
     private Button call;
-
     private String nameString;
     private String priceString;
     private String quantityString;
     private String supplierString;
     private String phoneString;
-
-    int quantity;
     private int mAvailability = ItemEntry.AVAILABILITY_UNKNOWN;
     private boolean mItemHasChanged = false;
     /**
@@ -79,10 +75,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         final Intent intent = getIntent();
         mCurrentItemUri = intent.getData();
 
-        increase = (Button) findViewById(R.id.increase_button);
-        decrease = (Button) findViewById(R.id.decrease_button);
-        delete = (Button)findViewById(R.id.delete_button);
-        call = (Button)findViewById(R.id.call_supplier);
+        increase = findViewById(R.id.increase_button);
+        decrease = findViewById(R.id.decrease_button);
+        delete = findViewById(R.id.delete_button);
+        call = findViewById(R.id.call_supplier);
 
         if (mCurrentItemUri == null) {
             setTitle(getString(R.string.editor_activity_title_new_item));
@@ -207,18 +203,15 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         supplierString = mSupplierEditText.getText().toString().trim();
         phoneString = mPhoneEditText.getText().toString().trim();
 
-        int quantity;
-        try { quantity = Integer.parseInt ( quantityString );
-        } catch (Exception e) { quantity = 0; }
 
-        // Check if this is supposed to be a new product
-        if (mCurrentItemUri == null &&
-                TextUtils.isEmpty (nameString) && TextUtils.isEmpty (priceString) &&
-                TextUtils.isEmpty (quantityString) && TextUtils.isEmpty (supplierString)
-                && TextUtils.isEmpty (phoneString)) {
+        try {
+            quantity = Integer.parseInt(quantityString);
+        } catch (Exception e) {
+            quantity = 0;
+        }
 
-            // and check if all the fields in the editor are blank
-            if (!currentItemData ( nameString, quantityString, priceString, supplierString, phoneString )) {
+
+        if (!currentItemData(nameString, quantityString, priceString, supplierString, phoneString)) {
                 return;
             }
             // Create a ContentValues object where column names are the keys,
@@ -233,20 +226,19 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             // Determine if this is a new or existing item by checking if itemUri is null or not
             if (mCurrentItemUri == null) {
 
-                Uri newUri = getContentResolver ().insert ( ItemContract.ItemEntry.CONTENT_URI, values );
+                Uri newUri = getContentResolver().insert(ItemContract.ItemEntry.CONTENT_URI, values);
                 // Show a toast message depending on whether or not the insertion was successful.
                 if (newUri == null) {
                     // If the new content URI is null, then there was an error with insertion.
-                    Toast.makeText ( this, getString ( R.string.editor_insert_item_failed ),
-                            Toast.LENGTH_SHORT ).show ();
+                    Toast.makeText(this, getString(R.string.editor_insert_item_failed), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText ( this, getString ( R.string.editor_insert_item_successful ),
-                            Toast.LENGTH_SHORT ).show ();
+                    Toast.makeText(this, getString(R.string.editor_insert_item_successful), Toast.LENGTH_SHORT).show();
+                    finish();
                 }
             } else {
 
-                int rowsAffected = getContentResolver ().update ( mCurrentItemUri, values, null, null );
-                if (!currentItemData ( nameString, quantityString, priceString, supplierString, phoneString )) {
+                int rowsAffected = getContentResolver().update(mCurrentItemUri, values, null, null);
+                if (!currentItemData(nameString, quantityString, priceString, supplierString, phoneString)) {
                     // Since no fields were modified, we can return early without creating a new book.
                     // No need to create ContentValues and no need to do any ContentProvider operations.
                     return;
@@ -254,15 +246,13 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 // Show a toast message depending on whether or not the update was successful.
                 if (rowsAffected == 0) {
                     // If no rows were affected, then there was an error with the update.
-                    Toast.makeText ( this, getString ( R.string.editor_update__item_failed ),
-                            Toast.LENGTH_SHORT ).show ();
+                    Toast.makeText(this, getString(R.string.editor_update__item_failed), Toast.LENGTH_SHORT).show();
                 } else {
                     // Otherwise, the update was successful and we can display a toast.
-                    Toast.makeText ( this, getString ( R.string.editor_update_item_successful),
-                            Toast.LENGTH_SHORT ).show ();
+                    Toast.makeText(this, getString(R.string.editor_update_item_successful), Toast.LENGTH_SHORT).show();
+
                 }
             }
-        }
     }
 
     @Override
@@ -304,16 +294,15 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                     return true;
                 }
 
-                DialogInterface.OnClickListener discardButtonClickListener =
-                        new DialogInterface.OnClickListener () {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                // User clicked "Discard" button, navigate to parent activity.
-                                NavUtils.navigateUpFromSameTask ( EditorActivity.this );
-                            }
-                        };
+                DialogInterface.OnClickListener discardButtonClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // User clicked "Discard" button, navigate to parent activity.
+                        NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                    }
+                };
                 // Show a dialog that notifies the user they have unsaved changes
-                showUnsavedChangesDialog ( discardButtonClickListener );
+                showUnsavedChangesDialog(discardButtonClickListener);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -346,14 +335,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        String[] projection = {
-                ItemEntry._ID,
-                ItemEntry.COLUMN_ITEM_NAME,
-                ItemEntry.COLUMN_ITEM_QUANTITY,
-                ItemEntry.COLUMN_ITEM_PRICE,
-                ItemEntry.COLUMN_ITEM_AVAILABILITY,
-                ItemEntry.COLUMN_ITEM_PHONE,
-                ItemEntry.COLUMN_ITEM_SUPPLIER,};
+        String[] projection = {ItemEntry._ID, ItemEntry.COLUMN_ITEM_NAME, ItemEntry.COLUMN_ITEM_QUANTITY, ItemEntry.COLUMN_ITEM_PRICE, ItemEntry.COLUMN_ITEM_AVAILABILITY, ItemEntry.COLUMN_ITEM_PHONE, ItemEntry.COLUMN_ITEM_SUPPLIER,};
 
         // This loader will execute the ContentProvider's query method on a background thread
         return new CursorLoader(this, mCurrentItemUri, projection, null, null, null);
@@ -482,30 +464,29 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 Toast.makeText(this, getString(R.string.editor_delete_item_successful), Toast.LENGTH_SHORT).show();
             }
         }
-        // Close the activity
+        // Close the activity//
         finish();
     }
 
-    private boolean currentItemData(String nameString, String quantity, String
-            price, String supplierString, String phoneString) {
-        if (TextUtils.isEmpty ( nameString )) {
-            Toast.makeText (this, getResources ().getString (R.string.name_required), Toast.LENGTH_SHORT).show ();
+    private boolean currentItemData(String nameString, String quantity, String price, String supplierString, String phoneString) {
+        if (TextUtils.isEmpty(nameString)) {
+            Toast.makeText(this, getResources().getString(R.string.name_required), Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (TextUtils.isEmpty ( quantity )) {
-            Toast.makeText (this, getResources ().getString (R.string.quantity_required), Toast.LENGTH_SHORT).show ();
+        if (TextUtils.isEmpty(quantity)) {
+            Toast.makeText(this, getResources().getString(R.string.quantity_required), Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (TextUtils.isEmpty (supplierString )) {
-            Toast.makeText (this, getResources ().getString (R.string.supplier_required), Toast.LENGTH_SHORT).show ();
+        if (TextUtils.isEmpty(supplierString)) {
+            Toast.makeText(this, getResources().getString(R.string.supplier_required), Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (TextUtils.isEmpty (price)) {
-            Toast.makeText (this, getResources ().getString (R.string.price_required), Toast.LENGTH_SHORT).show ();
+        if (TextUtils.isEmpty(price)) {
+            Toast.makeText(this, getResources().getString(R.string.price_required), Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (TextUtils.isEmpty (phoneString )) {
-            Toast.makeText (this, getResources ().getString (R.string.phone_required), Toast.LENGTH_SHORT).show ();
+        if (TextUtils.isEmpty(phoneString)) {
+            Toast.makeText(this, getResources().getString(R.string.phone_required), Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
